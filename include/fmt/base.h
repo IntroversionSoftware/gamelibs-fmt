@@ -41,7 +41,7 @@ import std;
 #else
 #  define FMT_ICC_VERSION 0
 #endif
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !defined(_LIBCPP_VERSION)
 #  define FMT_MSC_VERSION _MSC_VER
 #else
 #  define FMT_MSC_VERSION 0
