@@ -77,7 +77,7 @@ $(OBJ_DIR)/$(LIB): $(OBJECTS)
 $(OBJ_DIR)/%.o: %.cc $(OBJ_DIR)/.cflags | $$(@D)/.
 	$(QUIET_CXX)$(CXX) $(CXXFLAGS) -o $@ -c $<
 
-.PRECIOUS: $(OBJ_DIR)/. $(OBJ_DIR)%/.
+.PRECIOUS: $(includedir)/. $(includedir)%/. $(OBJ_DIR)/. $(OBJ_DIR)%/.
 
 $(includedir)/.:
 	$(QUIET)mkdir -p $@
