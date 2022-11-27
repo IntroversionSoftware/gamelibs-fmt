@@ -170,7 +170,7 @@ namespace detail {
 
 // __builtin_clz is broken in clang with Microsoft codegen:
 // https://github.com/fmtlib/fmt/issues/519.
-#if !FMT_MSC_VERSION
+#if !FMT_MSC_VERSION || defined(__clang__)
 #  if FMT_HAS_BUILTIN(__builtin_clz) || FMT_GCC_VERSION || FMT_ICC_VERSION
 #    define FMT_BUILTIN_CLZ(n) __builtin_clz(n)
 #  endif
