@@ -2610,6 +2610,7 @@ FMT_CONSTEXPR auto get_arg_index_by_name(basic_string_view<Char> name) -> int {
   return -1;
 }
 
+// NOLINTBEGIN(clang-analyzer-optin.cplusplus.UninitializedObject)
 template <typename Char, typename... Args> class format_string_checker {
  private:
   using parse_context_type = compile_parse_context<Char>;
@@ -2664,6 +2665,7 @@ template <typename Char, typename... Args> class format_string_checker {
     throw_format_error(message);
   }
 };
+// NOLINTEND(clang-analyzer-optin.cplusplus.UninitializedObject)
 
 // A base class for compile-time strings.
 struct compile_string {};
