@@ -721,6 +721,7 @@ template <typename Char> class basic_format_parse_context {
   int next_arg_id_;
 
   FMT_CONSTEXPR void do_check_arg_id(int id);
+  FMT_CONSTEXPR void do_check_args_used();
 
  public:
   using char_type = Char;
@@ -778,6 +779,8 @@ template <typename Char> class basic_format_parse_context {
   }
   FMT_CONSTEXPR void check_arg_id(basic_string_view<Char>) {}
   FMT_CONSTEXPR void check_dynamic_spec(int arg_id);
+
+  FMT_CONSTEXPR void check_args_used() { do_check_args_used(); }
 };
 
 FMT_EXPORT
@@ -1087,6 +1090,17 @@ FMT_CONSTEXPR void basic_format_parse_context<Char>::do_check_arg_id(int id) {
       throw_format_error("argument not found");
   }
 }
+
+template <typename Char>
+FMT_CONSTEXPR void basic_format_parse_context<Char>::do_check_args_used() {
+  if (detail::is_constant_evaluated() &&
+      (!FMT_GCC_VERSION || FMT_GCC_VERSION >= 1200)) {
+    using context = detail::compile_parse_context<Char>;
+    if (next_arg_id_ != static_cast<context*>(this)->num_args())
+      throw_format_error("not all arguments consumed by format string");
+  }
+}
+
 
 template <typename Char>
 FMT_CONSTEXPR void basic_format_parse_context<Char>::check_dynamic_spec(
@@ -2516,6 +2530,7 @@ FMT_CONSTEXPR FMT_INLINE void parse_format_string(
       }
     }
     handler.on_text(begin, end);
+    handler.check_args_used();
     return;
   }
   struct writer {
@@ -2543,6 +2558,7 @@ FMT_CONSTEXPR FMT_INLINE void parse_format_string(
     write(begin, p);
     begin = parse_replacement_field(p, end, handler);
   }
+  handler.check_args_used();
 }
 
 template <typename T, bool = is_named_arg<T>::value> struct strip_named_arg {
@@ -2664,6 +2680,8 @@ template <typename Char, typename... Args> class format_string_checker {
   FMT_CONSTEXPR void on_error(const char* message) {
     throw_format_error(message);
   }
+
+  FMT_CONSTEXPR void check_args_used() { context_.check_args_used(); }
 };
 // NOLINTEND(clang-analyzer-optin.cplusplus.UninitializedObject)
 
