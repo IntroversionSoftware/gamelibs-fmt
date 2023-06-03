@@ -506,6 +506,8 @@ struct scan_handler {
                              scan_args args)
       : parse_ctx_(format), scan_ctx_(buf, args), next_arg_id_(0) {}
 
+  void check_args_used() {}
+
   auto pos() const -> scan_buffer::iterator { return scan_ctx_.begin(); }
 
   void on_text(const char* begin, const char* end) {
