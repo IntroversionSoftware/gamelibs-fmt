@@ -719,6 +719,7 @@ template <typename Char> class basic_format_parse_context {
   int next_arg_id_;
 
   FMT_CONSTEXPR void do_check_arg_id(int id);
+  FMT_CONSTEXPR void do_check_args_used();
 
  public:
   using char_type = Char;
@@ -776,6 +777,7 @@ template <typename Char> class basic_format_parse_context {
     next_arg_id_ = -1;
   }
   FMT_CONSTEXPR void check_dynamic_spec(int arg_id);
+  FMT_CONSTEXPR void check_args_used() { do_check_args_used(); }
 };
 
 FMT_EXPORT
@@ -1096,6 +1098,16 @@ FMT_CONSTEXPR void basic_format_parse_context<Char>::do_check_arg_id(int id) {
     using context = detail::compile_parse_context<Char>;
     if (id >= static_cast<context*>(this)->num_args())
       report_error("argument not found");
+  }
+}
+
+template <typename Char>
+FMT_CONSTEXPR void basic_format_parse_context<Char>::do_check_args_used() {
+  if (detail::is_constant_evaluated() &&
+      (!FMT_GCC_VERSION || FMT_GCC_VERSION >= 1200)) {
+    using context = detail::compile_parse_context<Char>;
+    if (next_arg_id_ != static_cast<context*>(this)->num_args())
+      report_error("not all arguments consumed by format string");
   }
 }
 
@@ -2592,6 +2604,7 @@ FMT_CONSTEXPR void parse_format_string(basic_string_view<Char> format_str,
       }
     }
     handler.on_text(begin, end);
+    handler.check_args_used();
     return;
   }
   struct writer {
@@ -2614,11 +2627,15 @@ FMT_CONSTEXPR void parse_format_string(basic_string_view<Char> format_str,
     // Doing two passes with memchr (one for '{' and another for '}') is up to
     // 2.5x faster than the naive one-pass implementation on big format strings.
     const Char* p = begin;
-    if (*begin != '{' && !find<IS_CONSTEXPR>(begin + 1, end, Char('{'), p))
-      return write(begin, end);
+    if (*begin != '{' && !find<IS_CONSTEXPR>(begin + 1, end, Char('{'), p)) {
+      write(begin, end);
+      handler.check_args_used();
+      return;
+    }
     write(begin, p);
     begin = parse_replacement_field(p, end, handler);
   }
+  handler.check_args_used();
 }
 
 template <typename T, bool = is_named_arg<T>::value> struct strip_named_arg {
@@ -2736,6 +2753,7 @@ template <typename Char, typename... Args> class format_string_checker {
   }
 
   FMT_CONSTEXPR void on_error(const char* message) { report_error(message); }
+  FMT_CONSTEXPR void check_args_used() { context_.check_args_used(); }
 };
 
 // A base class for compile-time strings.
