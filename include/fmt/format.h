@@ -4388,6 +4388,8 @@ void vformat_to(buffer<Char>& buf, basic_string_view<Char> fmt,
       context.advance_to(visit_format_arg(f, arg));
       return begin;
     }
+
+    FMT_CONSTEXPR void check_args_used() { parse_context.check_args_used(); }
   };
   detail::parse_format_string<false>(fmt, format_handler(out, fmt, args, loc));
 }
