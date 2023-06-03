@@ -545,6 +545,8 @@ struct test_format_string_handler {
 
   constexpr void on_error(const char*) { error = true; }
 
+  constexpr void check_args_used() { }
+
   bool error = false;
 };
 
