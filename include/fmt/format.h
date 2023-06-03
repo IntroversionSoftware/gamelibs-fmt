@@ -4274,6 +4274,7 @@ void vformat_to(buffer<Char>& buf, basic_string_view<Char> fmt,
     }
 
     FMT_NORETURN void on_error(const char* message) { report_error(message); }
+    FMT_CONSTEXPR void check_args_used() { parse_context.check_args_used(); }
   };
   detail::parse_format_string<false>(fmt, format_handler(out, fmt, args, loc));
 }
