@@ -57,6 +57,11 @@
 #  define FMT_MSC_WARNING(...)
 #endif
 
+#ifdef _LIBCPP_VERSION
+#  undef FMT_MSC_VERSION
+#  define FMT_MSC_VERSION 0
+#endif
+
 #ifdef _MSVC_LANG
 #  define FMT_CPLUSPLUS _MSVC_LANG
 #else
