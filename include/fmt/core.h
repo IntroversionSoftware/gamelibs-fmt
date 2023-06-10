@@ -89,6 +89,11 @@ FMT_END_NAMESPACE_STD
 #  define FMT_MSC_WARNING(...)
 #endif
 
+#ifdef _LIBCPP_VERSION
+#  undef FMT_MSC_VERSION
+#  define FMT_MSC_VERSION 0
+#endif
+
 #ifdef _GLIBCXX_RELEASE
 #  define FMT_GLIBCXX_RELEASE _GLIBCXX_RELEASE
 #else
