@@ -83,7 +83,7 @@
 #  if FMT_CPLUSPLUS >= 202002L
 #    if FMT_HAS_CPP_ATTRIBUTE(no_unique_address)
 #      define FMT_NO_UNIQUE_ADDRESS [[no_unique_address]]
-#    elif FMT_MSC_VERSION >= 1929  // VS2019 v16.10 and later
+#    elif FMT_MSC_VERSION >= 1929 && !defined(__clang__)  // VS2019 v16.10 and later
 #      define FMT_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
 #    endif
 #  endif
