@@ -1,17 +1,18 @@
 project('fmt', 'cpp',
     default_options: [
         'buildtype=debugoptimized',
-        'cpp_std=c++2a',
+        'cpp_std=c++20',
         'cpp_rtti=false',
         'cpp_eh=none'
-    ]
+    ],
+    version: '10.2.0'
 )
 
 compiler = meson.get_compiler('cpp')
 link_deps = []
 
 incdirs = ['include']
-cflags = []
+c_flags = []
 
 sources = [
   'src/format.cc',
@@ -20,17 +21,19 @@ sources = [
 
 incdirs = include_directories(incdirs)
 
-fmt = static_library(
+fmt_lib = library(
     'fmt',
     sources,
-    cpp_args: cflags,
+    cpp_args: c_flags,
     include_directories: incdirs,
     dependencies: link_deps,
 )
+
 fmt_dep = declare_dependency(
+    compile_args: c_flags,
     include_directories: incdirs,
     dependencies: link_deps,
-    link_with: fmt,
+    link_with: fmt_lib,
     version: meson.project_version()
 )
 
