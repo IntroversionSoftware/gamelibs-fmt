@@ -1107,7 +1107,7 @@ FMT_CONSTEXPR void basic_format_parse_context<Char>::do_check_args_used() {
       (!FMT_GCC_VERSION || FMT_GCC_VERSION >= 1200)) {
     using context = detail::compile_parse_context<Char>;
     if (next_arg_id_ != static_cast<context*>(this)->num_args())
-      throw_format_error("not all arguments consumed by format string");
+      report_error("not all arguments consumed by format string");
   }
 }
 
