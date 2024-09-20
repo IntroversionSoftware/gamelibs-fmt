@@ -157,6 +157,28 @@
 #  define FMT_CONSTEXPR_STRING
 #endif
 
+#ifdef FMT_DARWINIA_ALLOCATOR
+extern "C" {
+#  ifndef CDECL
+#    define V_CDECL
+#    if defined(_WIN32) && !defined(__GNUC__)
+#      define CDECL __cdecl
+#    else
+#      define CDECL
+#    endif
+#  endif
+void *CDECL internal_alloc(std::size_t count);
+void CDECL internal_free(void *ptr);
+#  ifdef V_CDECL
+#    undef V_CDECL
+#    undef CDECL
+#endif
+}
+#else
+#  define internal_alloc std::malloc
+#  define internal_free std::free
+#endif
+
 // GCC 4.9 doesn't support qualified names in specializations.
 namespace std {
 template <typename T> struct iterator_traits<fmt::basic_appender<T>> {
@@ -748,12 +770,12 @@ template <typename T> struct allocator : private std::decay<void> {
 
   auto allocate(size_t n) -> T* {
     FMT_ASSERT(n <= max_value<size_t>() / sizeof(T), "");
-    T* p = static_cast<T*>(malloc(n * sizeof(T)));
+    T* p = static_cast<T*>(internal_alloc(n * sizeof(T)));
     if (!p) FMT_THROW(std::bad_alloc());
     return p;
   }
 
-  void deallocate(T* p, size_t) { free(p); }
+  void deallocate(T* p, size_t) { internal_free(p); }
 
   constexpr friend auto operator==(allocator, allocator) noexcept -> bool {
     return true;  // All instances of this allocator are equivalent.
