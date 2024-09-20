@@ -117,6 +117,23 @@
 #  define FMT_NOINLINE
 #endif
 
+extern "C" {
+#  ifndef CDECL
+#    define V_CDECL
+#    if defined(_WIN32) && !defined(__GNUC__)
+#      define CDECL __cdecl
+#    else
+#      define CDECL
+#    endif
+#  endif
+void *CDECL internal_alloc(std::size_t count);
+void CDECL internal_free(void *ptr);
+#  ifdef V_CDECL
+#    undef V_CDECL
+#    undef CDECL
+#endif
+}
+
 namespace std {
 template <typename T> struct iterator_traits<fmt::basic_appender<T>> {
   using iterator_category = output_iterator_tag;
@@ -756,12 +773,12 @@ template <typename T> struct allocator {
 
   T* allocate(size_t n) {
     FMT_ASSERT(n <= max_value<size_t>() / sizeof(T), "");
-    T* p = static_cast<T*>(malloc(n * sizeof(T)));
+    T* p = static_cast<T*>(internal_alloc(n * sizeof(T)));
     if (!p) FMT_THROW(std::bad_alloc());
     return p;
   }
 
-  void deallocate(T* p, size_t) { free(p); }
+  void deallocate(T* p, size_t) { internal_free(p); }
 };
 
 }  // namespace detail
