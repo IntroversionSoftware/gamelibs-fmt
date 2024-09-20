@@ -117,6 +117,7 @@
 #  define FMT_NOINLINE
 #endif
 
+#ifdef FMT_DARWINIA_ALLOCATOR
 extern "C" {
 #  ifndef CDECL
 #    define V_CDECL
@@ -133,6 +134,10 @@ void CDECL internal_free(void *ptr);
 #    undef CDECL
 #endif
 }
+#else
+#  define internal_alloc malloc
+#  define internal_free free
+#endif
 
 namespace std {
 template <typename T> struct iterator_traits<fmt::basic_appender<T>> {
