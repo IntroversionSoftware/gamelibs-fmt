@@ -172,8 +172,8 @@ void CDECL internal_free(void *ptr);
 #endif
 }
 #else
-#  define internal_alloc std::malloc
-#  define internal_free std::free
+#  define internal_alloc ::malloc
+#  define internal_free ::free
 #endif
 
 // GCC 4.9 doesn't support qualified names in specializations.
