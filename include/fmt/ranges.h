@@ -646,8 +646,9 @@ struct formatter<
   FMT_CONSTEXPR auto parse(parse_context<Char>& ctx) -> const Char* {
     auto it = underlying_.parse(ctx);
     if FMT_CONSTEXPR20 (range_format_kind<R, Char>::value ==
-                        range_format::debug_string)
+                        range_format::debug_string) {
       underlying_.set_debug_format();
+    }
     return it;
   }
 
